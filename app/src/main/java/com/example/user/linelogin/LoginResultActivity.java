@@ -1,8 +1,6 @@
 package com.example.user.linelogin;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -14,7 +12,6 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.linecorp.linesdk.LineProfile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,20 +22,17 @@ import java.net.URL;
  */
 
 public class LoginResultActivity extends AppCompatActivity {
-    LineProfile userProfile;
     Intent intent;
     TextView tv;
     ImageView iv;
     Uri pictureUrl;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_info);
-        final     DBhelper dbhelper = new DBhelper(getApplicationContext(),"User_info.db",null,1);
+        final DBhelper dbhelper = new DBhelper(getApplicationContext(), "User_info.db", null, 1);
         intent = getIntent();
-        //userProfile = intent.getParcelableExtra("line_profile");
 
         String id = intent.getExtras().getString("id");
         String name = intent.getExtras().getString("name");
@@ -50,37 +44,19 @@ public class LoginResultActivity extends AppCompatActivity {
         tv = (TextView) findViewById(R.id.u_name);
         tv.setText(name);
 
-      // pictureUrl = userProfile.getPictureUrl();
-        if(dbhelper.getData().isEmpty()){
-            dbhelper.insert(id,name,pictureUrl.toString());
-         //   Log.i("size",)
-        }
+        //DB에 사용자 정보 없을때만 insert
+        if (dbhelper.getData().isEmpty())
+            dbhelper.insert(id, name, pictureUrl.toString());
 
         if (pictureUrl != null) {
+            //사용자 이미지를 Uri를 이용해 이미지뷰에 로드
             new ImageLoaderTask().execute(pictureUrl.toString());
         }
     }
 
-    private void lockScreenOrientation() {
-        int currentOrientation = getResources().getConfiguration().orientation;
-        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-    }
 
-    private void unlockScreenOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
 
     public class ImageLoaderTask extends AsyncTask<String, String, Bitmap> {
-
-        final static String TAG = "ImageLoaderTask";
-
-        protected void onPreExecute() {
-            lockScreenOrientation();
-        }
 
         protected Bitmap doInBackground(String... strings) {
             Bitmap bitmap = null;
@@ -89,7 +65,7 @@ public class LoginResultActivity extends AppCompatActivity {
                 bitmap = BitmapFactory.decodeStream((InputStream) url.getContent());
 
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
+                Log.i("Error","Error");
             }
             return bitmap;
         }
@@ -97,7 +73,6 @@ public class LoginResultActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap bitmap) {
             ImageView profileImageView = (ImageView) findViewById(R.id.u_pic);
             profileImageView.setImageBitmap(bitmap);
-            unlockScreenOrientation();
         }
     }
 }

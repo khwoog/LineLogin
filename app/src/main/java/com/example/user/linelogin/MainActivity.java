@@ -3,61 +3,41 @@ package com.example.user.linelogin;
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.linecorp.linesdk.auth.LineLoginApi;
 import com.linecorp.linesdk.auth.LineLoginResult;
-
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final String CHANNEL_ID = "1555693759";
-    public static final String base_uri="http://10.70.20.127:8080";
     public static final int REQUEST_CODE = 1;
 
     Button loginBt;
-    List<String>user_info;
+    List<String> user_info; //사용자 정보를 담은 String Array
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final DBhelper dbhelper = new DBhelper(getApplicationContext(),"User_info.db",null,1);
-        user_info=dbhelper.getData();
-        if(!user_info.isEmpty())
-       {
+        final DBhelper dbhelper = new DBhelper(getApplicationContext(), "User_info.db", null, 1);
+        user_info = dbhelper.getData();
+        if (!user_info.isEmpty()) { //저장된 사용자 정보가 있으면 그대로 출력
 
-           Intent transitionIntent = new Intent(this, LoginResultActivity.class);
-           transitionIntent.putExtra("id", user_info.get(0));
-       transitionIntent.putExtra("name", user_info.get(1));
-          transitionIntent.putExtra("uri", Uri.parse(user_info.get(2)));
-          startActivity(transitionIntent);
-       }
+            Intent transitionIntent = new Intent(this, LoginResultActivity.class);
+            transitionIntent.putExtra("id", user_info.get(0));
+            transitionIntent.putExtra("name", user_info.get(1));
+            transitionIntent.putExtra("uri", Uri.parse(user_info.get(2)));
+            startActivity(transitionIntent);
+        }
+        Log.i("size", String.valueOf(user_info.size()));
         loginBt = (Button) findViewById(R.id.login_b);
-//      Toast.makeText(this,user_info.size(),Toast.LENGTH_LONG).show();
-Log.i("size",String.valueOf(user_info.size()));
         loginBt.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view) {    //Login Activity 실행
                 try {
                     Intent loginIntent = LineLoginApi.getLoginIntent(view.getContext(), CHANNEL_ID);
                     startActivityForResult(loginIntent, REQUEST_CODE);
@@ -66,7 +46,6 @@ Log.i("size",String.valueOf(user_info.size()));
                 }
             }
         });
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -81,12 +60,11 @@ Log.i("size",String.valueOf(user_info.size()));
         switch (login_result.getResponseCode()) {
             case SUCCESS:
                 Intent transitionIntent = new Intent(this, LoginResultActivity.class);
-              //  transitionIntent.putExtra("line_profile", login_result.getLineProfile());
+                //login_rusult로 부터 사용자 정보 얻어와 put
                 transitionIntent.putExtra("id", login_result.getLineProfile().getUserId());
                 transitionIntent.putExtra("name", login_result.getLineProfile().getDisplayName());
                 transitionIntent.putExtra("uri", login_result.getLineProfile().getPictureUrl());
 
-                //  final String accessToken = login_result.getLineCredential().getAccessToken().getAccessToken();
                 startActivity(transitionIntent);
                 break;
 
