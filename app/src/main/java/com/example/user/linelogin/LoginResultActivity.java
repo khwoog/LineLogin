@@ -31,16 +31,18 @@ public class LoginResultActivity extends AppCompatActivity {
     ImageView iv;
     Uri pictureUrl;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_info);
-
+        final     DBhelper dbhelper = new DBhelper(getApplicationContext(),"User_info.db",null,1);
         intent = getIntent();
-        userProfile = intent.getParcelableExtra("line_profile");
+        //userProfile = intent.getParcelableExtra("line_profile");
 
-        String id = userProfile.getUserId();
-        String name = userProfile.getDisplayName();
+        String id = intent.getExtras().getString("id");
+        String name = intent.getExtras().getString("name");
+        pictureUrl = intent.getParcelableExtra("uri");
 
         iv = (ImageView) findViewById(R.id.u_pic);
         tv = (TextView) findViewById(R.id.u_id);
@@ -48,7 +50,11 @@ public class LoginResultActivity extends AppCompatActivity {
         tv = (TextView) findViewById(R.id.u_name);
         tv.setText(name);
 
-        Uri pictureUrl = userProfile.getPictureUrl();
+      // pictureUrl = userProfile.getPictureUrl();
+        if(dbhelper.getData().isEmpty()){
+            dbhelper.insert(id,name,pictureUrl.toString());
+         //   Log.i("size",)
+        }
 
         if (pictureUrl != null) {
             new ImageLoaderTask().execute(pictureUrl.toString());
