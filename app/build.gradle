@@ -26,6 +26,7 @@ dependencies {
     compile(name:'line-sdk-4.0.6', ext:'aar')
     compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'com.android.support:customtabs:25.4.0'
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M3'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
